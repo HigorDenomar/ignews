@@ -3,7 +3,6 @@ import Providers from 'next-auth/providers';
 import { query as q } from 'faunadb';
 
 import { fauna } from '../../../services/fauna';
-import { session } from 'next-auth/client';
 
 export default NextAuth({
   providers: [
@@ -32,12 +31,13 @@ export default NextAuth({
                 )
               ),
               q.Match(
-                q.Index('subscription_by_status', 'active')
+                q.Index('subscription_by_status'),
+                "active"
               )
             ])
           )
         );
-  
+
         return {
           ...session,
           activeSubscription: userActiveSubscription,
