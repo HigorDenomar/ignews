@@ -1,3 +1,4 @@
+import { useRouter } from 'next/router';
 import { useSession, signIn } from 'next-auth/client';
 
 import { api } from '../../services/api';
@@ -11,10 +12,16 @@ type Props = {
 
 export function SubscribeButton({ priceId }: Props) {
   const [session] = useSession();
+  const router = useRouter();
 
   async function handleSubscribe() {
     if(!session) {
       signIn('github');
+      return;
+    }
+
+    if(session.activeSubscription) {
+      router.push('/posts');
       return;
     }
 
