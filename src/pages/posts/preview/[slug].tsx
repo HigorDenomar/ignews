@@ -5,6 +5,7 @@ import { GetStaticPaths, GetStaticProps } from 'next';
 import { useSession } from 'next-auth/client';
 import { useRouter } from 'next/router';
 import { RichText } from 'prismic-dom';
+import Prismic from '@prismicio/client';
 
 import { getPrismicClient } from '../../../services/prismic';
 
@@ -61,9 +62,22 @@ export default function PostPreview({ post }: Props) {
 }
 
 export const getStaticPaths: GetStaticPaths = async () => {
+  const prismic = getPrismicClient();
+
+  const { results } = await prismic.query([
+    Prismic.Predicates.at('document.type', 'post')
+  ], {
+    pageSize: 30,
+  });
+
+  const paths = results.map(post => ({
+    params: {
+      slug: post.uid
+    }
+  }));
 
   return {
-    paths: [],
+    paths,
     fallback: 'blocking',
   }
 }
@@ -96,6 +110,6 @@ export const getStaticProps: GetStaticProps = async ({ params }) => {
     props: {
       post,
     },
-    revalidate: (60 * 60 * 24) // 1 day
+    revalidate: (60 * 60) // 1 hour
   };
 }
